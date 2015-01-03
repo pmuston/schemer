@@ -22,7 +22,7 @@ def Mixed(*types):
                     return True
             return False
 
-    class Mixed(object):
-        __metaclass__ = MixedType
+    class Mixed(object, metaclass=MixedType):
+        pass
 
     return Mixed

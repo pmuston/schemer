@@ -4,7 +4,7 @@ from schemer.validators import one_of, lte, gte, length
 import unittest
 from mock import patch
 from datetime import datetime
-from sample import blog_post_schema, stubnow, valid_doc
+from .sample import blog_post_schema, stubnow, valid_doc
 
 
 class TestSchemaVerification(unittest.TestCase):
@@ -137,12 +137,12 @@ class TestSchemaVerification(unittest.TestCase):
 
     def test_array_of_strings_with_default(self):
         Schema({
-            "fruit": {'type': Array(basestring), "default": ['apple', 'orange']}
+            "fruit": {'type': Array(str), "default": ['apple', 'orange']}
         })
 
     def test_array_of_strings_with_invalid_default(self):
         self.assert_spec_invalid({
-            "fruit": {'type': Array(basestring), "default": 'not a list'}
+            "fruit": {'type': Array(str), "default": 'not a list'}
         }, 'fruit')
 
     def test_array_of_strings_with_invalid_default_content(self):
@@ -158,7 +158,7 @@ class TestSchemaVerification(unittest.TestCase):
 
     def test_array_validation(self):
         Schema({
-            "fruit": {'type': Array(basestring), "validates": length(1, 2)}
+            "fruit": {'type': Array(str), "validates": length(1, 2)}
         })
 
 class TestBlogValidation(unittest.TestCase):
@@ -173,7 +173,7 @@ class TestBlogValidation(unittest.TestCase):
     def assert_document_paths_invalid(self, document, paths):
         with self.assertRaises(ValidationException) as cm:
             blog_post_schema.validate(document)
-        self.assertListEqual(paths, cm.exception.errors.keys())
+        self.assertCountEqual(paths, list(cm.exception.errors.keys()))
 
     def test_valid_document_1(self):
         blog_post_schema.validate(self.document_1)

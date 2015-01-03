@@ -10,21 +10,21 @@ def stubnow():
     return datetime(2012, 4, 5)
 
 name_schema = Schema({
-    "first":    {"type": basestring, "required": True},
-    "last":     {"type": basestring, "required": True}
+    "first":    {"type": str, "required": True},
+    "last":     {"type": str, "required": True}
 })
 
 # TEST SCHEMAS
 comment_schema = Schema({
     "commenter":    {"type": name_schema, "required": True},
-    "email":        {"type": basestring, "required": False},
-    "comment":      {"type": basestring, "required": True},
+    "email":        {"type": str, "required": False},
+    "comment":      {"type": str, "required": True},
     "votes":        {"type": int, "default": 0}
 })
 
 about_schema = Schema({
-    "first_name": {"type": basestring, "required": True},
-    "last_name": {"type": basestring, "required": True},
+    "first_name": {"type": str, "required": True},
+    "last_name": {"type": str, "required": True},
     "birth_year": {"type": int, "required": True},
     "birth_month": {"type": int, "required": True},
     "birth_day": {"type": int, "required": True}
@@ -39,21 +39,21 @@ def get_author_schema(document):
 blog_post_schema = Schema({
     "author":           {"type": get_author_schema, "required": True},
     "content":          {"type": Schema({
-        "title":            {"type": basestring, "required": True},
-        "text":             {"type": basestring, "required": True},
+        "title":            {"type": str, "required": True},
+        "text":             {"type": str, "required": True},
         "page_views":       {"type": int, "default": 1}
     }), "required": True},
     "meta":             {"type": Schema({
         "last_edited":      {"type": datetime}
     }), "required": True, "nullable": True},
-    "category":         {"type": basestring, "validates": one_of("cooking", "politics")},
+    "category":         {"type": str, "validates": one_of("cooking", "politics")},
     "comments":         {"type": Array(comment_schema), "required": True},
     "likes":            {"type": int, "default": 0},
     "creation_date":    {"type": datetime, "default": stubnow},
-    "tags":             {"type": Array(basestring), "default": ["blog"], "validates": length(1)},
-    "misc":             {"type": Mixed(basestring, int)},
-    "linked_id":        {"type": Mixed(int, basestring)},
-    "external_code":    {"type": basestring, "nullable": False}
+    "tags":             {"type": Array(str), "default": ["blog"], "validates": length(1)},
+    "misc":             {"type": Mixed(str, int)},
+    "linked_id":        {"type": Mixed(int, str)},
+    "external_code":    {"type": str, "nullable": False}
 })
 
 

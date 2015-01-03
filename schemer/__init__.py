@@ -1,7 +1,8 @@
 import types, copy
 from inspect import getargspec
-from exceptions import ValidationException, SchemaFormatException
-from extension_types import Mixed
+from .exceptions import ValidationException, SchemaFormatException
+from .extension_types import Mixed
+import collections
 
 
 class Array(object):
@@ -26,7 +27,7 @@ class Schema(object):
         """Applies the defaults described by the this schema to the given
         document instance as appropriate. Defaults are only applied to
         fields which are currently unset."""
-        for field, spec in self.doc_spec.iteritems():
+        for field, spec in self.doc_spec.items():
 
             # Determine if a value already exists for the field
             if field in instance:
@@ -49,7 +50,7 @@ class Schema(object):
             # Apply a default if one is available
             if isinstance(spec, dict) and 'default' in spec:
                 default = spec['default']
-                if callable(default):
+                if isinstance(default, collections.Callable):
                     instance[field] = default()
                 else:
                     instance[field] = default
@@ -73,7 +74,7 @@ class Schema(object):
 
     def _verify(self, path_prefix=None):
         """Verifies that this schema's doc spec is valid and makes sense."""
-        for field, spec in self.doc_spec.iteritems():
+        for field, spec in self.doc_spec.items():
             path = self._append_path(path_prefix, field)
 
             # Standard dict-based spec
@@ -110,7 +111,7 @@ class Schema(object):
 
         # Only expected spec keys are supported
         if not set(spec.keys()).issubset(set(['type', 'required', 'validates', 'default', 'nullable'])):
-            raise SchemaFormatException("Unsupported field spec item at {}. Items: "+repr(spec.keys()), path)
+            raise SchemaFormatException("Unsupported field spec item at {}. Items: "+repr(list(spec.keys())), path)
 
     def _verify_type(self, spec, path):
         """Verify that the 'type' in the spec is valid"""
@@ -119,7 +120,7 @@ class Schema(object):
         if isinstance(field_type, Schema):
             # Nested documents cannot have defaults or validation
             if not set(spec.keys()).issubset(set(['type', 'required', 'nullable'])):
-                raise SchemaFormatException("Unsupported field spec item at {}. Items: "+repr(spec.keys()), path)
+                raise SchemaFormatException("Unsupported field spec item at {}. Items: "+repr(list(spec.keys())), path)
             return
 
         elif isinstance(field_type, Array):
@@ -136,7 +137,7 @@ class Schema(object):
         default = spec['default']
 
         # If it's a function there's nothing we can really do except assume its valid
-        if callable(default):
+        if isinstance(default, collections.Callable):
             return
 
         if isinstance(field_type, Array):
@@ -168,7 +169,7 @@ class Schema(object):
         """Verifies that a given validator associated with the field at the given path is legitimate."""
 
         # Validator should be a function
-        if not callable(validator):
+        if not isinstance(validator, collections.Callable):
             raise SchemaFormatException("Invalid validations for {}", path)
 
         # Validator should accept a single argument
@@ -189,7 +190,7 @@ class Schema(object):
 
         # Loop over each field in the schema and check the instance value conforms
         # to its spec
-        for field, spec in self.doc_spec.iteritems():
+        for field, spec in self.doc_spec.items():
             path = self._append_path(path_prefix, field)
 
             # If the field is present, validate it's value.
